@@ -5,10 +5,13 @@ metadata:
   name: {{ include "jotlin.fullname" . }}-migrate
   labels:
     {{- include "jotlin.labels" . | nindent 4 }}
-  {{- with .Values.migrationJob.annotations }}
   annotations:
+    "helm.sh/hook": pre-install,pre-upgrade
+    "helm.sh/hook-delete-policy": before-hook-creation,hook-succeeded
+    "helm.sh/hook-weight": "-5"
+    {{- with .Values.migrationJob.annotations }}
     {{- toYaml . | nindent 4 }}
-  {{- end }}
+    {{- end }}
 spec:
   backoffLimit: {{ .Values.migrationJob.backoffLimit }}
   template:

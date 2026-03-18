@@ -80,13 +80,21 @@ jobs:
           fi
 
       - name: Build and optionally push Docker image
+        id: build
         uses: docker/build-push-action@v6
         with:
           context: .
           file: ${{ matrix.dockerfile }}
           platforms: linux/amd64
           push: ${{ steps.push.outputs.value }}
+          load: ${{ matrix.name == 'migrate' && steps.push.outputs.value == 'false' }}
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
           cache-from: type=gha
           cache-to: type=gha,mode=max
+
+      - name: Verify migration image contents
+        if: matrix.name == 'migrate' && steps.push.outputs.value == 'false'
+        run: |
+          docker run --rm "$(echo "${{ steps.meta.outputs.tags }}" | head -n 1)" sh -c \
+            'ls -R prisma && test -f prisma/schema.prisma && npx prisma -v'
