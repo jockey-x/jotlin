@@ -3,14 +3,13 @@ import jwt from 'jsonwebtoken'
 import { SealosSession, sealosSessionSchema, SealosToken, sealosTokenSchema, User } from '@/schema/session'
 
 export class SealosAuth {
-  private jwtSecret: string
-
-  constructor() {
+  private getJwtSecret(): string {
     const secret = process.env.SEALOS_JWT_SECRET
     if (!secret) {
       throw new Error('SEALOS_JWT_SECRET not configured')
     }
-    this.jwtSecret = secret
+
+    return secret
   }
 
   validateSession(sealosSession: object): SealosSession {
@@ -19,7 +18,7 @@ export class SealosAuth {
 
   verifyToken(token: string): SealosToken {
     try {
-      const decoded = jwt.verify(token, this.jwtSecret)
+      const decoded = jwt.verify(token, this.getJwtSecret())
       return sealosTokenSchema.parse(decoded)
     } catch {
       throw new Error('Invalid or expired Sealos token')
