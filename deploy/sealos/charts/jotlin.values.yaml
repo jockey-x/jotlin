@@ -1,0 +1,113 @@
+replicaCount: 2
+
+image:
+  repository: ghcr.io/jockey-x/jotlin
+  tag: "0.1.0"
+  pullPolicy: IfNotPresent
+
+imagePullSecrets: []
+
+nameOverride: ""
+fullnameOverride: ""
+
+serviceAccount:
+  create: false
+  annotations: {}
+  name: ""
+
+podAnnotations: {}
+podLabels: {}
+
+podSecurityContext: {}
+
+securityContext: {}
+
+service:
+  type: ClusterIP
+  port: 3000
+
+ingress:
+  enabled: true
+  className: nginx
+  annotations:
+    cert-manager.io/cluster-issuer: letsencrypt-prod
+    nginx.ingress.kubernetes.io/proxy-body-size: 20m
+    nginx.ingress.kubernetes.io/proxy-read-timeout: "300"
+    nginx.ingress.kubernetes.io/proxy-send-timeout: "300"
+  hosts:
+    - host: jotlin.example.com
+      paths:
+        - path: /
+          pathType: Prefix
+  tls:
+    - secretName: jotlin-tls
+      hosts:
+        - jotlin.example.com
+
+resources:
+  requests:
+    cpu: 250m
+    memory: 512Mi
+  limits:
+    cpu: "1"
+    memory: 1Gi
+
+livenessProbe:
+  httpGet:
+    path: /
+    port: http
+  initialDelaySeconds: 30
+  periodSeconds: 20
+  timeoutSeconds: 5
+  failureThreshold: 6
+
+readinessProbe:
+  httpGet:
+    path: /
+    port: http
+  initialDelaySeconds: 10
+  periodSeconds: 10
+  timeoutSeconds: 5
+  failureThreshold: 6
+
+nodeSelector: {}
+
+tolerations: []
+
+affinity: {}
+
+env:
+  NODE_ENV: production
+  PORT: "3000"
+  NEXT_PUBLIC_BASE_URL: "https://jotlin.example.com"
+  OPENAI_API_BASE_URL: "https://api.openai.com/v1"
+  S3_ENDPOINT: "http://minio.minio.svc.cluster.local:9000"
+  S3_PUBLIC_URL: "https://s3.example.com"
+  S3_BUCKET_NAME: "jotlin"
+
+secretEnv:
+  DATABASE_URL: "postgresql://jotlin:replace-me@postgresql-rw.database.svc.cluster.local:5432/jotlin"
+  OPENAI_API_KEY: "replace-me"
+  TAVILY_API_KEY: "replace-me"
+  GITHUB_CLIENT_ID: "replace-me"
+  GITHUB_CLIENT_SECRET: "replace-me"
+  GOOGLE_CLIENT_ID: "replace-me"
+  GOOGLE_CLIENT_SECRET: "replace-me"
+  JWT_SECRET: "replace-me-with-a-long-random-string"
+  SEALOS_JWT_SECRET: ""
+  S3_ACCESS_KEY: "replace-me"
+  S3_SECRET_KEY: "replace-me"
+
+migrationJob:
+  enabled: true
+  backoffLimit: 1
+  annotations: {}
+  podAnnotations: {}
+  image:
+    repository: ghcr.io/jockey-x/jotlin-migrate
+    tag: "0.1.0"
+    pullPolicy: IfNotPresent
+  command:
+    - sh
+    - -c
+    - npx prisma migrate deploy

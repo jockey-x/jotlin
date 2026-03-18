@@ -307,6 +307,47 @@ migrationJob:
     - npx prisma migrate deploy
 ```
 
+### Sealos
+
+The repository also includes a Sealos-oriented packaging layout for building a cluster image from the Helm chart:
+
+- Sealos directory: [`deploy/sealos`](./deploy/sealos)
+- Kubefile: [`deploy/sealos/Kubefile`](./deploy/sealos/Kubefile)
+- Chart directory: [`deploy/sealos/charts/jotlin`](./deploy/sealos/charts/jotlin)
+- Sealos values file: [`deploy/sealos/charts/jotlin.values.yaml`](./deploy/sealos/charts/jotlin.values.yaml)
+
+Before building a Sealos image, replace all placeholder values in `deploy/sealos/charts/jotlin.values.yaml`, especially:
+
+- `image.tag`
+- `migrationJob.image.tag`
+- `secretEnv.DATABASE_URL`
+- `secretEnv.OPENAI_API_KEY`
+- `secretEnv.JWT_SECRET`
+- OAuth and S3 credentials
+
+Then build the Sealos image from the Sealos packaging directory:
+
+```bash
+cd deploy/sealos
+sealos build -t your-registry/jotlin-sealos:v0.1.0 .
+```
+
+The included `Kubefile` installs Jotlin with:
+
+```bash
+helm upgrade --install jotlin charts/jotlin \
+  --namespace=jotlin \
+  --create-namespace \
+  -f charts/jotlin.values.yaml
+```
+
+Important notes:
+
+- The Sealos build context expects the `charts/` layout described in the Sealos Helm chart packaging documentation
+- `charts/jotlin.values.yaml` is the values file Sealos uses to resolve referenced images for packaging
+- The migration job remains enabled in the Sealos example values and will run automatically before install and upgrade
+- Do not build a production Sealos image with placeholder secrets left in the values file
+
 ### Vercel
 
 The easiest way to deploy Jotlin is using the [Vercel Platform](https://vercel.com):
