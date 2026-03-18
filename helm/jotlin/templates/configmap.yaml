@@ -1,0 +1,14 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ include "jotlin.fullname" . }}-config
+  labels:
+    {{- include "jotlin.labels" . | nindent 4 }}
+data:
+  NODE_ENV: {{ .Values.env.NODE_ENV | quote }}
+  PORT: {{ .Values.env.PORT | quote }}
+  NEXT_PUBLIC_BASE_URL: {{ .Values.env.NEXT_PUBLIC_BASE_URL | quote }}
+  OPENAI_API_BASE_URL: {{ .Values.env.OPENAI_API_BASE_URL | quote }}
+  S3_ENDPOINT: {{ .Values.env.S3_ENDPOINT | quote }}
+  S3_PUBLIC_URL: {{ .Values.env.S3_PUBLIC_URL | quote }}
+  S3_BUCKET_NAME: {{ .Values.env.S3_BUCKET_NAME | quote }}

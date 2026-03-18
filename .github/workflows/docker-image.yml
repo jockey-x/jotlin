@@ -27,6 +27,16 @@ env:
 jobs:
   docker:
     runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - name: app
+            image_suffix: ""
+            dockerfile: ./Dockerfile
+          - name: migrate
+            image_suffix: -migrate
+            dockerfile: ./Dockerfile.migrate
     permissions:
       contents: read
       packages: write
@@ -49,7 +59,7 @@ jobs:
         id: meta
         uses: docker/metadata-action@v5
         with:
-          images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
+          images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}${{ matrix.image_suffix }}
           tags: |
             type=ref,event=branch
             type=ref,event=pr
@@ -73,7 +83,7 @@ jobs:
         uses: docker/build-push-action@v6
         with:
           context: .
-          file: ./Dockerfile
+          file: ${{ matrix.dockerfile }}
           platforms: linux/amd64
           push: ${{ steps.push.outputs.value }}
           tags: ${{ steps.meta.outputs.tags }}
