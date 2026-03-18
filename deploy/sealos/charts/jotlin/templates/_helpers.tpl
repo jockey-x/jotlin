@@ -39,3 +39,11 @@ app.kubernetes.io/instance: {{ .Release.Name }}
 {{- default "default" .Values.serviceAccount.name -}}
 {{- end -}}
 {{- end -}}
+
+{{- define "jotlin.secretName" -}}
+{{- if .Values.secret.create -}}
+{{- default (printf "%s-secret" (include "jotlin.fullname" .)) .Values.secret.name -}}
+{{- else -}}
+{{- required "secret.existingSecret is required when secret.create=false" .Values.secret.existingSecret -}}
+{{- end -}}
+{{- end -}}

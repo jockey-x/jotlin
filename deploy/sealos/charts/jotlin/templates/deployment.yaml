@@ -44,7 +44,7 @@ spec:
             - configMapRef:
                 name: {{ include "jotlin.fullname" . }}-config
             - secretRef:
-                name: {{ include "jotlin.fullname" . }}-secret
+                name: {{ include "jotlin.secretName" . }}
           {{- with .Values.securityContext }}
           securityContext:
             {{- toYaml . | nindent 12 }}
