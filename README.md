@@ -211,6 +211,46 @@ Run the container:
 docker run -p 3000:3000 --env-file .env jotlin:latest
 ```
 
+### CI/CD Image Build
+
+The repository includes a GitHub Actions workflow for building and publishing Docker images to GitHub Container Registry:
+
+- Workflow file: [`.github/workflows/docker-image.yml`](./.github/workflows/docker-image.yml)
+- Default image name: `ghcr.io/jockey-x/jotlin`
+
+Trigger behavior:
+
+- Pull requests targeting `main` build the image only and do not push
+- Pushes to `main` build and push an image
+- Tags matching `v*` build and push versioned images
+- Manual runs from GitHub Actions support optional image push via `push_image=true`
+
+Generated image tags include:
+
+- Branch name tags for branch builds
+- PR tags for pull request builds
+- `sha-<commit>` tags
+- Semantic version tags when pushing tags like `v1.2.3`
+- `latest` for the default branch
+
+Before using the workflow, make sure:
+
+1. GitHub Actions has `Read and write permissions` enabled for the repository
+2. GitHub Container Registry packages are allowed for this repository
+
+After that, pushing to `main` will publish a new image automatically:
+
+```bash
+git push origin main
+```
+
+To publish a release image manually with semantic version tags:
+
+```bash
+git tag v0.1.0
+git push origin v0.1.0
+```
+
 ### Vercel
 
 The easiest way to deploy Jotlin is using the [Vercel Platform](https://vercel.com):
