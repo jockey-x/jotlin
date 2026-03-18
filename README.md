@@ -348,6 +348,49 @@ Important notes:
 - The Sealos example is configured to use an existing Kubernetes `Secret` named `jotlin-secret`
 - With `secret.create=false`, you do not need to embed real secrets into the Sealos image during `sealos build`
 
+Create the `jotlin-secret` in the target cluster before installing the Sealos image. For example:
+
+```bash
+kubectl create namespace jotlin
+
+kubectl create secret generic jotlin-secret \
+  -n jotlin \
+  --from-literal=DATABASE_URL='postgresql://user:password@postgresql-rw.database.svc.cluster.local:5432/jotlin' \
+  --from-literal=OPENAI_API_KEY='your-openai-api-key' \
+  --from-literal=TAVILY_API_KEY='your-tavily-api-key' \
+  --from-literal=GITHUB_CLIENT_ID='your-github-client-id' \
+  --from-literal=GITHUB_CLIENT_SECRET='your-github-client-secret' \
+  --from-literal=GOOGLE_CLIENT_ID='your-google-client-id' \
+  --from-literal=GOOGLE_CLIENT_SECRET='your-google-client-secret' \
+  --from-literal=JWT_SECRET='your-jwt-secret' \
+  --from-literal=SEALOS_JWT_SECRET='' \
+  --from-literal=S3_ACCESS_KEY='your-s3-access-key' \
+  --from-literal=S3_SECRET_KEY='your-s3-secret-key'
+```
+
+Or create it from YAML:
+
+```yaml
+apiVersion: v1
+kind: Secret
+metadata:
+  name: jotlin-secret
+  namespace: jotlin
+type: Opaque
+stringData:
+  DATABASE_URL: "postgresql://user:password@postgresql-rw.database.svc.cluster.local:5432/jotlin"
+  OPENAI_API_KEY: "your-openai-api-key"
+  TAVILY_API_KEY: "your-tavily-api-key"
+  GITHUB_CLIENT_ID: "your-github-client-id"
+  GITHUB_CLIENT_SECRET: "your-github-client-secret"
+  GOOGLE_CLIENT_ID: "your-google-client-id"
+  GOOGLE_CLIENT_SECRET: "your-google-client-secret"
+  JWT_SECRET: "your-jwt-secret"
+  SEALOS_JWT_SECRET: ""
+  S3_ACCESS_KEY: "your-s3-access-key"
+  S3_SECRET_KEY: "your-s3-secret-key"
+```
+
 ### Vercel
 
 The easiest way to deploy Jotlin is using the [Vercel Platform](https://vercel.com):
