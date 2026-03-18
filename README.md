@@ -270,46 +270,9 @@ Render the chart locally:
 helm template jotlin ./helm/jotlin
 ```
 
-Create a values override file such as `values.prod.yaml`:
+An example production override file is included at [`helm/jotlin/values.prod.yaml`](./helm/jotlin/values.prod.yaml):
 
-```yaml
-image:
-  repository: ghcr.io/jockey-x/jotlin
-  tag: "0.1.0"
-
-ingress:
-  enabled: true
-  className: nginx
-  hosts:
-    - host: jotlin.example.com
-      paths:
-        - path: /
-          pathType: Prefix
-  tls:
-    - secretName: jotlin-tls
-      hosts:
-        - jotlin.example.com
-
-env:
-  NEXT_PUBLIC_BASE_URL: "https://jotlin.example.com"
-  OPENAI_API_BASE_URL: "https://api.openai.com/v1"
-  S3_ENDPOINT: "http://minio:9000"
-  S3_PUBLIC_URL: "https://s3.example.com"
-  S3_BUCKET_NAME: "jotlin"
-
-secretEnv:
-  DATABASE_URL: "postgresql://user:password@postgres:5432/jotlin"
-  OPENAI_API_KEY: "your-openai-api-key"
-  TAVILY_API_KEY: "your-tavily-api-key"
-  GITHUB_CLIENT_ID: "your-github-client-id"
-  GITHUB_CLIENT_SECRET: "your-github-client-secret"
-  GOOGLE_CLIENT_ID: "your-google-client-id"
-  GOOGLE_CLIENT_SECRET: "your-google-client-secret"
-  JWT_SECRET: "your-jwt-secret"
-  SEALOS_JWT_SECRET: "your-sealos-jwt-secret"
-  S3_ACCESS_KEY: "your-s3-access-key"
-  S3_SECRET_KEY: "your-s3-secret-key"
-```
+Copy it and replace the placeholder values before deployment.
 
 Install or upgrade the release:
 
@@ -317,7 +280,7 @@ Install or upgrade the release:
 helm upgrade --install jotlin ./helm/jotlin \
   --namespace jotlin \
   --create-namespace \
-  -f values.prod.yaml
+  -f ./helm/jotlin/values.prod.yaml
 ```
 
 Important notes:
