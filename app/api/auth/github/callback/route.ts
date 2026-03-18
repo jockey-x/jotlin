@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 
 import { findOrCreateUser, linkAccount } from '@/libs/auth/account'
 import { createAuthSession } from '@/libs/auth/auth'
-import { githubOAuth } from '@/libs/auth/github-oauth'
+import { getGitHubOAuth } from '@/libs/auth/github-oauth'
 import { prisma } from '@/libs/utils/prisma'
 import { uploadAvatar } from '@/libs/utils/s3'
 
@@ -45,7 +45,7 @@ export async function GET(request: NextRequest) {
     const redirectUrl = stateData.redirect || '/chat'
 
     // Exchange code for user info
-    const githubUser = await githubOAuth.authenticateWithCode(code)
+    const githubUser = await getGitHubOAuth().authenticateWithCode(code)
 
     if (!githubUser.email) {
       return NextResponse.redirect(`${redirectBaseUrl}/?error=no_email`)

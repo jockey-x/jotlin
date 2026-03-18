@@ -79,8 +79,21 @@ export class GoogleOAuth {
   }
 }
 
-export const googleOAuth = new GoogleOAuth({
-  clientId: process.env.GOOGLE_CLIENT_ID!,
-  clientSecret: process.env.GOOGLE_CLIENT_SECRET!,
-  redirectUri: `${process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000'}/api/auth/google/callback`,
-})
+function getGoogleOAuthConfig(): GoogleOAuthConfig {
+  const clientId = process.env.GOOGLE_CLIENT_ID
+  const clientSecret = process.env.GOOGLE_CLIENT_SECRET
+
+  if (!clientId || !clientSecret) {
+    throw new Error('Google OAuth is not configured')
+  }
+
+  return {
+    clientId,
+    clientSecret,
+    redirectUri: `${process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000'}/api/auth/google/callback`,
+  }
+}
+
+export function getGoogleOAuth(): GoogleOAuth {
+  return new GoogleOAuth(getGoogleOAuthConfig())
+}

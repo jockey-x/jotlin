@@ -99,8 +99,21 @@ export class GitHubOAuth {
   }
 }
 
-export const githubOAuth = new GitHubOAuth({
-  clientId: process.env.GITHUB_CLIENT_ID!,
-  clientSecret: process.env.GITHUB_CLIENT_SECRET!,
-  redirectUri: `${process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000'}/api/auth/github/callback`,
-})
+function getGitHubOAuthConfig(): GitHubOAuthConfig {
+  const clientId = process.env.GITHUB_CLIENT_ID
+  const clientSecret = process.env.GITHUB_CLIENT_SECRET
+
+  if (!clientId || !clientSecret) {
+    throw new Error('GitHub OAuth is not configured')
+  }
+
+  return {
+    clientId,
+    clientSecret,
+    redirectUri: `${process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000'}/api/auth/github/callback`,
+  }
+}
+
+export function getGitHubOAuth(): GitHubOAuth {
+  return new GitHubOAuth(getGitHubOAuthConfig())
+}

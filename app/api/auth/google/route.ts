@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 
-import { googleOAuth } from '@/libs/auth/google-oauth'
+import { getGoogleOAuth } from '@/libs/auth/google-oauth'
 
 export async function GET(request: NextRequest) {
   try {
@@ -15,7 +15,7 @@ export async function GET(request: NextRequest) {
       })
     ).toString('base64')
 
-    const authUrl = googleOAuth.getAuthorizationUrl(state)
+    const authUrl = getGoogleOAuth().getAuthorizationUrl(state)
 
     return NextResponse.redirect(authUrl)
   } catch (error) {

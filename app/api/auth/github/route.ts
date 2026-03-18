@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 
-import { githubOAuth } from '@/libs/auth/github-oauth'
+import { getGitHubOAuth } from '@/libs/auth/github-oauth'
 
 export async function GET(request: NextRequest) {
   try {
@@ -17,7 +17,7 @@ export async function GET(request: NextRequest) {
     ).toString('base64')
 
     // Get authorization URL with encoded state
-    const authUrl = githubOAuth.getAuthorizationUrl(state)
+    const authUrl = getGitHubOAuth().getAuthorizationUrl(state)
 
     return NextResponse.redirect(authUrl)
   } catch (error) {

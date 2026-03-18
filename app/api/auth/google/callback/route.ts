@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 
 import { findOrCreateUser, linkAccount } from '@/libs/auth/account'
 import { createAuthSession } from '@/libs/auth/auth'
-import { googleOAuth } from '@/libs/auth/google-oauth'
+import { getGoogleOAuth } from '@/libs/auth/google-oauth'
 import { prisma } from '@/libs/utils/prisma'
 import { uploadAvatar } from '@/libs/utils/s3'
 
@@ -41,7 +41,7 @@ export async function GET(request: NextRequest) {
 
     const redirectUrl = stateData.redirect || '/chat'
 
-    const googleUser = await googleOAuth.authenticateWithCode(code)
+    const googleUser = await getGoogleOAuth().authenticateWithCode(code)
 
     if (!googleUser.email) {
       return NextResponse.redirect(`${redirectBaseUrl}/?error=no_email`)
