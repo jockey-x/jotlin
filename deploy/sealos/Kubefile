@@ -2,5 +2,6 @@ FROM scratch
 
 COPY charts charts
 COPY registry registry
+COPY install.sh install.sh
 
-CMD ["helm upgrade --install jotlin charts/jotlin --namespace=jotlin --create-namespace -f charts/jotlin.values.yaml"]
+CMD ["bash", "install.sh"]

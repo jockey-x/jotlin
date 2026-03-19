@@ -314,6 +314,7 @@ The repository also includes a Sealos-oriented packaging layout for building a c
 
 - Sealos directory: [`deploy/sealos`](./deploy/sealos)
 - Kubefile: [`deploy/sealos/Kubefile`](./deploy/sealos/Kubefile)
+- Install script: [`deploy/sealos/install.sh`](./deploy/sealos/install.sh)
 - Chart directory: [`deploy/sealos/charts/jotlin`](./deploy/sealos/charts/jotlin)
 - Sealos values file: [`deploy/sealos/charts/jotlin.values.yaml`](./deploy/sealos/charts/jotlin.values.yaml)
 
@@ -331,7 +332,7 @@ cd deploy/sealos
 sealos build -t your-registry/jotlin-sealos:v0.1.0 .
 ```
 
-The included `Kubefile` installs Jotlin with:
+The included `Kubefile` invokes `install.sh`, which creates or updates `jotlin-secret`, derives cluster-specific values from Sealos config maps, and then installs Jotlin with:
 
 ```bash
 helm upgrade --install jotlin charts/jotlin \
@@ -347,28 +348,32 @@ Important notes:
 - The migration job remains enabled in the Sealos example values and will run automatically before install and upgrade
 - The Sealos example is configured to use an existing Kubernetes `Secret` named `jotlin-secret`
 - With `secret.create=false`, you do not need to embed real secrets into the Sealos image during `sealos build`
+- `install.sh` expects required runtime secrets such as `DATABASE_URL`, `OPENAI_API_KEY`, `JWT_SECRET`, `S3_ACCESS_KEY`, and `S3_SECRET_KEY` to be provided when installing
 
-Create the `jotlin-secret` in the target cluster before installing the Sealos image. For example:
+At install time, provide the required runtime environment variables and let `install.sh` create or update `jotlin-secret` automatically. For example:
 
 ```bash
-kubectl create namespace jotlin
-
-kubectl create secret generic jotlin-secret \
-  -n jotlin \
-  --from-literal=DATABASE_URL='postgresql://user:password@postgresql-rw.database.svc.cluster.local:5432/jotlin' \
-  --from-literal=OPENAI_API_KEY='your-openai-api-key' \
-  --from-literal=TAVILY_API_KEY='your-tavily-api-key' \
-  --from-literal=GITHUB_CLIENT_ID='your-github-client-id' \
-  --from-literal=GITHUB_CLIENT_SECRET='your-github-client-secret' \
-  --from-literal=GOOGLE_CLIENT_ID='your-google-client-id' \
-  --from-literal=GOOGLE_CLIENT_SECRET='your-google-client-secret' \
-  --from-literal=JWT_SECRET='your-jwt-secret' \
-  --from-literal=SEALOS_JWT_SECRET='' \
-  --from-literal=S3_ACCESS_KEY='your-s3-access-key' \
-  --from-literal=S3_SECRET_KEY='your-s3-secret-key'
+DATABASE_URL='postgresql://user:password@postgresql-rw.database.svc.cluster.local:5432/jotlin' \
+OPENAI_API_KEY='your-openai-api-key' \
+JWT_SECRET='your-jwt-secret' \
+S3_ACCESS_KEY='your-s3-access-key' \
+S3_SECRET_KEY='your-s3-secret-key' \
+TAVILY_API_KEY='your-tavily-api-key' \
+GITHUB_CLIENT_ID='your-github-client-id' \
+GITHUB_CLIENT_SECRET='your-github-client-secret' \
+GOOGLE_CLIENT_ID='your-google-client-id' \
+GOOGLE_CLIENT_SECRET='your-google-client-secret' \
+sealos run your-registry/jotlin-sealos:v0.1.0
 ```
 
-Or create it from YAML:
+The install script will:
+
+- create the `jotlin` namespace if needed
+- create or update `jotlin-secret`
+- derive Sealos-specific defaults such as `cloudDomain` and `SEALOS_JWT_SECRET` from cluster config maps
+- run `helm upgrade -i`
+
+If you prefer to create the secret manually in advance, you can still do that:
 
 ```yaml
 apiVersion: v1
