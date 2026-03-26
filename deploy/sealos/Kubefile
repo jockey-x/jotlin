@@ -1,7 +1,7 @@
 FROM scratch
 
-COPY charts charts
-COPY registry registry
-COPY install.sh install.sh
+COPY charts /charts
+COPY registry /registry
+COPY install.sh /install.sh
 
-CMD ["bash", "install.sh"]
+CMD ["bash", "/install.sh"]
